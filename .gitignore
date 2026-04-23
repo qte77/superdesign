@@ -6,3 +6,8 @@ node_modules
 .env
 /dist-test
 /.superdesign
+
+# CC runtime artifacts — settings.json + rules are tracked config
+.claude/*
+!.claude/settings.json
+!.claude/rules/
