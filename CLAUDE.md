@@ -16,7 +16,7 @@ Upstream dual-license: **AGPLv3 + Enterprise Commercial**. See `LICENSE`.
 make validate        # typecheck + lint + compile + test (full gate)
 make validate_quick  # typecheck + lint (fast gate for iteration)
 make ralph_run ITERATIONS=5       # run ralph TDD loop
-```
+```bash
 
 See `AGENTS.md` for agent role boundaries.
 

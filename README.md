@@ -76,19 +76,19 @@ Your generated designs are saved locally inside `.superdesign/`.
 
 ## ❓ FAQ
 
-**Is it free and open source?**  
+### Is it free and open source?
 Yes! We are open source — fork it, extend it, remix it.
 
-**Can I customize the design agent?**  
+### Can I customize the design agent?
 Yes — use your own prompt templates, modify behaviors, or add commands.
 
-**Can SuperDesign update existing UI?**  
+### Can SuperDesign update existing UI?
 Absolutely — select a component, describe the change, and let the agent do the rest.
 
 <img width="886" height="586" alt="image" src="https://github.com/user-attachments/assets/71b7cfcc-6123-40ea-aae5-05ea6cdcea96" />
 
 
-**How can I contribute?**  
+### How can I contribute?
 Pull requests are welcome. Star the repo and join us on [Discord](https://discord.gg/FYr49d6cQ9)!
 
 ---

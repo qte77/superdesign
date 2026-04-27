@@ -21,7 +21,7 @@ This guide covers how to publish updates to both the new official publisher (`Su
 ### Required Tools
 ```bash
 npm install -g @vscode/vsce ovsx
-```
+```text
 
 ---
 
@@ -52,9 +52,9 @@ npx vsce publish --pat YOUR_VSCE_TOKEN
 
 # Publish to Open VSX Registry
 npx ovsx publish -p YOUR_OVSX_TOKEN
-```
+```bash
 
-**Or all in one command:**
+### Or all in one command:
 ```bash
 npm run package && \
 npx vsce publish --pat YOUR_VSCE_TOKEN && \
@@ -91,7 +91,7 @@ Only publish to `iganbold` when:
   "version": "0.0.X",  // Match or increment from last iganbold version
   "publisher": "iganbold"
 }
-```
+```javascript
 
 2. **Update `src/extension.ts` (line ~1327):**
 ```typescript
@@ -117,7 +117,7 @@ This extension has moved to a new publisher account. Please uninstall this versi
 
 [... rest of deprecation message ...]
 EOF
-```
+```bash
 
 ### Step 2: Commit and Tag
 
@@ -163,7 +163,7 @@ mv README_ORIGINAL.md README.md
 git add -A
 git commit -m "Revert to SuperdesignDev publisher for ongoing development"
 git push origin main
-```
+```bash
 
 ---
 
@@ -228,7 +228,7 @@ jobs:
       - run: npm install -g @vscode/vsce ovsx
       - run: vsce publish --pat ${{ secrets.VSCE_TOKEN }}
       - run: ovsx publish -p ${{ secrets.OPEN_VSX_TOKEN }}
-```
+```bash
 
 ### GitHub Secrets
 
@@ -257,15 +257,15 @@ npx ovsx publish -p YOUR_OVSX_TOKEN
 git tag v0.0.X && git push origin main && git push origin v0.0.X
 # 3. Wait for GitHub Actions
 # 4. Revert changes
-```
+```text
 
 ### Check Published Versions
 
-**SuperdesignDev (New):**
+### SuperdesignDev (New):
 - VS Code: https://marketplace.visualstudio.com/items?itemName=SuperdesignDev.superdesign-official
 - Open VSX: https://open-vsx.org/extension/SuperdesignDev/superdesign-official
 
-**iganbold (Old - Deprecated):**
+### iganbold (Old - Deprecated):
 - VS Code: https://marketplace.visualstudio.com/items?itemName=iganbold.superdesign
 - Open VSX: https://open-vsx.org/extension/iganbold/superdesign
 
