@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { LLMProvider, LLMProviderType } from './llmProvider';
 import { ClaudeApiProvider } from './claudeApiProvider';
 import { ClaudeCodeProvider } from './claudeCodeProvider';
+import { ClaudeCodeSdkProvider } from './claudeCodeSdkProvider';
 import { Logger } from '../services/logger';
 
 export class LLMProviderFactory {
@@ -19,12 +20,10 @@ export class LLMProviderFactory {
     }
 
     async getProvider(providerType?: LLMProviderType): Promise<LLMProvider> {
-        // If no provider type specified, get from configuration
         if (!providerType) {
             providerType = this.getConfiguredProviderType();
         }
 
-        // Check if provider is already initialized
         if (this.providers.has(providerType)) {
             const provider = this.providers.get(providerType)!;
             if (provider.isReady()) {
@@ -33,29 +32,26 @@ export class LLMProviderFactory {
             }
         }
 
-        // Create new provider
         const provider = await this.createProvider(providerType);
-        
-        // Initialize the provider
         await provider.waitForInitialization();
-        
-        // Store the provider
         this.providers.set(providerType, provider);
         this.currentProvider = provider;
-        
         return provider;
     }
 
     private async createProvider(providerType: LLMProviderType): Promise<LLMProvider> {
         Logger.info(`Creating provider of type: ${providerType}`);
-        
+
         switch (providerType) {
             case LLMProviderType.CLAUDE_API:
                 return new ClaudeApiProvider(this.outputChannel);
-            
+
             case LLMProviderType.CLAUDE_CODE:
                 return new ClaudeCodeProvider(this.outputChannel);
-            
+
+            case LLMProviderType.CLAUDE_CODE_SDK:
+                return new ClaudeCodeSdkProvider(this.outputChannel);
+
             default:
                 throw new Error(`Unknown provider type: ${providerType}`);
         }
@@ -64,9 +60,10 @@ export class LLMProviderFactory {
     private getConfiguredProviderType(): LLMProviderType {
         const config = vscode.workspace.getConfiguration('superdesign');
         const providerType = config.get<string>('llmProvider', 'claude-api');
-        
-        // Map string to enum
+
         switch (providerType.toLowerCase()) {
+            case 'claude-code-sdk':
+                return LLMProviderType.CLAUDE_CODE_SDK;
             case 'claude-code':
                 return LLMProviderType.CLAUDE_CODE;
             case 'claude-api':
@@ -83,7 +80,6 @@ export class LLMProviderFactory {
         if (!this.currentProvider) {
             return false;
         }
-
         try {
             return await this.currentProvider.refreshConfiguration();
         } catch (error) {
@@ -94,12 +90,8 @@ export class LLMProviderFactory {
 
     async switchProvider(providerType: LLMProviderType): Promise<LLMProvider> {
         Logger.info(`Switching to provider: ${providerType}`);
-        
-        // Update configuration
         const config = vscode.workspace.getConfiguration('superdesign');
         await config.update('llmProvider', providerType, vscode.ConfigurationTarget.Global);
-        
-        // Get the new provider
         return await this.getProvider(providerType);
     }
 
@@ -114,7 +106,12 @@ export class LLMProviderFactory {
                 type: LLMProviderType.CLAUDE_CODE,
                 name: 'Claude Code Binary',
                 description: 'Uses local claude-code binary for enhanced code execution capabilities'
-            }
+            },
+            {
+                type: LLMProviderType.CLAUDE_CODE_SDK,
+                name: 'Claude Code SDK',
+                description: 'Uses @anthropic-ai/claude-code SDK query() for in-process streaming without spawning a binary'
+            },
         ];
     }
 
@@ -122,15 +119,13 @@ export class LLMProviderFactory {
         try {
             const provider = await this.createProvider(providerType);
             const isValid = await provider.waitForInitialization();
-            
+
             if (!isValid) {
                 return { isValid: false, error: `Failed to initialize ${provider.getProviderName()}` };
             }
 
-            // Additional validation based on provider type
             if (!provider.hasValidConfiguration()) {
                 let errorMessage = '';
-                
                 switch (providerType) {
                     case LLMProviderType.CLAUDE_API:
                         errorMessage = 'API key is required for Claude API provider';
@@ -138,8 +133,10 @@ export class LLMProviderFactory {
                     case LLMProviderType.CLAUDE_CODE:
                         errorMessage = 'Claude Code binary is not available. Please install claude-code CLI tool.';
                         break;
+                    case LLMProviderType.CLAUDE_CODE_SDK:
+                        errorMessage = 'Claude Code SDK is not available.';
+                        break;
                 }
-                
                 return { isValid: false, error: errorMessage };
             }
 
@@ -150,7 +147,6 @@ export class LLMProviderFactory {
         }
     }
 
-    // Method to get provider status for UI display
     async getProviderStatus(): Promise<{
         current: LLMProviderType;
         providers: Array<{
@@ -162,7 +158,7 @@ export class LLMProviderFactory {
     }> {
         const currentType = this.getConfiguredProviderType();
         const availableProviders = this.getAvailableProviders();
-        
+
         const providerStatuses = await Promise.all(
             availableProviders.map(async (provider) => {
                 const validation = await this.validateProvider(provider.type);
@@ -175,13 +171,9 @@ export class LLMProviderFactory {
             })
         );
 
-        return {
-            current: currentType,
-            providers: providerStatuses
-        };
+        return { current: currentType, providers: providerStatuses };
     }
 
-    // Clean up all providers
     dispose(): void {
         this.providers.clear();
         this.currentProvider = null;
