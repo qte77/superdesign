@@ -51,7 +51,7 @@ export abstract class LLMProvider {
     abstract refreshConfiguration(): Promise<boolean>;
     abstract isAuthError(errorMessage: string): boolean;
     abstract getProviderName(): string;
-    abstract getProviderType(): 'api' | 'binary';
+    abstract getProviderType(): 'api' | 'binary' | 'sdk';
 
     protected async ensureInitialized(): Promise<void> {
         if (this.initializationPromise) {
@@ -70,7 +70,8 @@ export abstract class LLMProvider {
 
 export enum LLMProviderType {
     CLAUDE_API = 'claude-api',
-    CLAUDE_CODE = 'claude-code'
+    CLAUDE_CODE = 'claude-code',
+    CLAUDE_CODE_SDK = 'claude-code-sdk',
 }
 
 export interface LLMProviderConfig {
