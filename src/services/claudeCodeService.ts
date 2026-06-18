@@ -79,7 +79,7 @@ export class ClaudeCodeService {
     }
 
     // Method to get current provider information
-    async getProviderInfo(): Promise<{ name: string; type: 'api' | 'binary' }> {
+    async getProviderInfo(): Promise<{ name: string; type: 'api' | 'binary' | 'sdk' }> {
         try {
             const provider = await this.getCurrentProvider();
             return {
@@ -88,7 +88,7 @@ export class ClaudeCodeService {
             };
         } catch (error) {
             Logger.error(`Failed to get provider info: ${error}`);
-            return { name: 'Unknown', type: 'api' };
+            return { name: 'Unknown', type: 'api' as const };
         }
     }
 
